@@ -3,19 +3,23 @@ using UnityEngine;
 using Pixelplacement;
 public class ParticlesManager : Singleton<ParticlesManager>
 {
-    void OnEnable() => GameEvents.Instance.onFX += HandleFX;
-    void OnDisable() => GameEvents.Instance.onFX -= HandleFX;
+    void OnEnable() => GameEvents.Instance.OnFX += HandleFX;
+    void OnDisable() => GameEvents.Instance.OnFX -= HandleFX;
 
-    void HandleFX(Vector2 position, ProjectileConfig config, string eventName, Transform parent)
+    void HandleFX(FXEventData data)
     {
-        if (config == null) return;
-        if (eventName == "Impact" && config.impactFX != null)
+        if (data.config == null) return;
+        if (data.context == "Impact")
         {
-            Destroy(Instantiate(config.impactFX, position, Quaternion.identity, parent).gameObject, 0.5f);
+            ProjectileConfig config = data.config as ProjectileConfig;
+            if(config.impactFX)
+                Destroy(Instantiate(config.impactFX, data.position, Quaternion.identity, data.parent).gameObject, 0.5f);
         }
-        else if (eventName == "Spawn" && config.spawnFX != null)
+        else if (data.context == "Spawn")
         {
-            Destroy(Instantiate(config.spawnFX, position, Quaternion.identity, parent).gameObject, 0.5f);
+            ProjectileConfig config = data.config as ProjectileConfig;
+            if(config.spawnFX)
+                Destroy(Instantiate(config.spawnFX, data.position, Quaternion.identity, data.parent).gameObject, 0.5f);
         }
     }
 }

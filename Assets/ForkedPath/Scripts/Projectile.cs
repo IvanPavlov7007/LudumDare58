@@ -27,16 +27,16 @@ public class Projectile : MonoBehaviour
 
     protected virtual void triggerEntered(Collider2D col)
     {
-        var damageable = col.GetComponent<IDamageable>();
+        var damageable = col.GetComponentInParent<IDamageable>();
         if (damageable != null && !damageable.IsDead)
         {
-            damageable.TakeDamage(config.damage, col.ClosestPoint(transform.position), -velocity.normalized);
-            GameEvents.Instance.onFX?.Invoke(transform.position, config, "Impact", col.transform);
+            damageable.TakeDamage(config.damage, col.ClosestPoint(transform.position), -velocity.normalized, config);
+            GameEvents.Instance.OnFX?.Invoke(new FXEventData(transform.position, "Impact", config, parent: col.transform));
             Destroy(gameObject);
         }
         else
         {
-            GameEvents.Instance.onFX?.Invoke(transform.position, config, "Impact", col.transform);
+            GameEvents.Instance.OnFX?.Invoke(new FXEventData(transform.position, "Impact", config, parent: col.transform));
             Destroy(gameObject);
         }
 
@@ -49,7 +49,7 @@ public class Projectile : MonoBehaviour
         setLayerMask(config.layerMask.value);
         gameObject.AddComponent<LimitedLifetime>().Initialize(config.maxLifetime);
         transform.right = velocity.normalized;
-        GameEvents.Instance.onFX?.Invoke(transform.position, config, "Spawn",caster);
+        GameEvents.Instance.OnFX?.Invoke(new FXEventData(transform.position, "Spawn", config, parent: caster));
     }
 
     public virtual void setLayerMask(LayerMask hitLayers)
