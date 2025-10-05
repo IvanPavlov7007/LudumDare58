@@ -13,13 +13,9 @@ MonoBehaviour:
   m_Name: player_basic_pattern
   m_EditorClassIdentifier: 
   projectileWaves:
-  - delayAfterWave: 0.1
+  - delayAfterWave: 0.2
     projectileConfig: {fileID: 11400000, guid: 132d3c3b9c4a0134bab487804961e37c, type: 2}
-  - delayAfterWave: 0.1
+  - delayAfterWave: 0.2
     projectileConfig: {fileID: 11400000, guid: 132d3c3b9c4a0134bab487804961e37c, type: 2}
-  - delayAfterWave: 0.1
-    projectileConfig: {fileID: 11400000, guid: 132d3c3b9c4a0134bab487804961e37c, type: 2}
-  - delayAfterWave: 0.1
-    projectileConfig: {fileID: 11400000, guid: 132d3c3b9c4a0134bab487804961e37c, type: 2}
-  - delayAfterWave: 0.5
+  - delayAfterWave: 0.4
     projectileConfig: {fileID: 11400000, guid: 132d3c3b9c4a0134bab487804961e37c, type: 2}

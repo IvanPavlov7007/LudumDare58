@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: player_basic_projectile_config
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 9111059261032084884, guid: a566cf8a358813849b4e6fedec1d9f18, type: 3}
-  projectileSpeed: 10
-  maxLifetime: 0.5
+  projectileSpeed: 15
+  maxLifetime: 0.2
   layerMask:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 256
   damage: 1
+  spawnFX: {fileID: 3151993719843837833, guid: 321dad726af4be948baea96e6eee6506, type: 3}
+  impactFX: {fileID: 3151993719843837833, guid: 321dad726af4be948baea96e6eee6506, type: 3}
+  spawnSFX: {fileID: 0}

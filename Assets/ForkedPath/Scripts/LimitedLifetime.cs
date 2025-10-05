@@ -4,15 +4,13 @@ using UnityEngine;
 
 public class LimitedLifetime : MonoBehaviour
 {
-    public float lifetime = 5f;
+    public float lifetime{ get; private set; }
     SimpleTimer timer;
 
-    private void OnEnable()
+    public void Initialize(float lifetime)
     {
-        if (timer == null)
-        {
-            timer = new SimpleTimer(lifetime);
-        }
+        this.lifetime = lifetime;
+        timer = new SimpleTimer(lifetime);
     }
 
     private void Update()

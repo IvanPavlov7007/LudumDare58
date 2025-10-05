@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2472695906007177340}
   - component: {fileID: 3516407506439793566}
   - component: {fileID: 3897399598551313359}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fork
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,8 +75,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 684229675
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 8ce47688b1e781949b0e3270ef951ef0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -123,7 +123,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.029366827, y: 0.0068096966}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -133,7 +133,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.48, y: 0.26}
+  m_Size: {x: 0.17101009, y: 0.22424906}
   m_EdgeRadius: 0
 --- !u!114 &3897399598551313359
 MonoBehaviour:
@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 4583856815202219087}
   - component: {fileID: 5371052725187130927}
   - component: {fileID: 7190044485215057230}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PlayerProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,8 +203,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: {x: 0, y: 0}
-  damage: 0
-  lifetime: 10
   trigger: {fileID: 3897399598551313359}
 --- !u!50 &7190044485215057230
 Rigidbody2D:
@@ -231,5 +229,5 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0

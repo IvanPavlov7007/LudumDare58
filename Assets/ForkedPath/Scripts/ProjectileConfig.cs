@@ -10,4 +10,9 @@ public class ProjectileConfig : ScriptableObject
     public float maxLifetime = 5f;
     public LayerMask layerMask;
     public int damage = 1;
+
+    [Header("FX")]
+    public GameObject spawnFX;
+    public GameObject impactFX;
+    public AudioClip spawnSFX;
 }

@@ -4,10 +4,8 @@ using System;
 
 public class Projectile : MonoBehaviour
 {
+    public ProjectileConfig config { get; private set; }
     public Vector2 velocity;
-    public event Action<Projectile,Collider2D> onTriggerEnter;
-    public int damage;
-    public float lifetime = 10f;
 
     [SerializeField]
     protected CustomTrigger2D trigger;
@@ -29,16 +27,29 @@ public class Projectile : MonoBehaviour
 
     protected virtual void triggerEntered(Collider2D col)
     {
-        onTriggerEnter?.Invoke(this, col);
+        var damageable = col.GetComponent<IDamageable>();
+        if (damageable != null && !damageable.IsDead)
+        {
+            damageable.TakeDamage(config.damage, col.ClosestPoint(transform.position), -velocity.normalized);
+            GameEvents.Instance.onFX?.Invoke(transform.position, config, "Impact", col.transform);
+            Destroy(gameObject);
+        }
+        else
+        {
+            GameEvents.Instance.onFX?.Invoke(transform.position, config, "Impact", col.transform);
+            Destroy(gameObject);
+        }
+
     }
 
-    public virtual void Initialize(Vector2 velocity, LayerMask hitLayers, int damage, float lifeTime)
+    public virtual void Initialize(Vector2 velocity, Transform caster, ProjectileConfig config)
     {
+        this.config = config;
         this.velocity = velocity;
-        setLayerMask(hitLayers.value);
-        this.damage = damage;
-        this.lifetime = lifeTime;
-        gameObject.AddComponent<LimitedLifetime>().lifetime = lifeTime;
+        setLayerMask(config.layerMask.value);
+        gameObject.AddComponent<LimitedLifetime>().Initialize(config.maxLifetime);
+        transform.right = velocity.normalized;
+        GameEvents.Instance.onFX?.Invoke(transform.position, config, "Spawn",caster);
     }
 
     public virtual void setLayerMask(LayerMask hitLayers)

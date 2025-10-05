@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -10,8 +11,7 @@ public class AutomaticShooter : MonoBehaviour
     Vector2 direction;
     Vector2 offsetPosition;
     bool isShooting = false;
-    float currentTimer = 0;
-    float totalDelay = 0f;
+    Queue<(float, ProjectileConfig)> shootingQueue = new Queue<(float, ProjectileConfig)>();
 
 
     public static AutomaticShooter ReloadAutomaticShooter(GameObject go, ProjectilesPattern pattern)
@@ -45,22 +45,18 @@ public class AutomaticShooter : MonoBehaviour
         if (isShooting)
         {
             currentTime += Time.fixedDeltaTime;
-            if (currentTime >= currentTimer)
+
+            for(; shootingQueue.Count > 0 && currentTime >= shootingQueue.Peek().Item1; )
             {
-                int i;
-                updateAccumulatedTime(out i);
-
-                if (i == projectilesPattern.projectileWaves.Length - 1)
+                var wave = shootingQueue.Dequeue();
+                if (wave.Item2 != null)
                 {
-                    // Shoot the last projectile
-                    shootProjectile(i);
-
-                    if (currentTime >= totalDelay)
-                        resetShooting();
+                    ProjectileManager.Instance.Shoot(
+                        (Vector2)transform.position + offsetPosition, direction, wave.Item2, transform);
                 }
                 else
                 {
-                    shootProjectile(i);
+                    resetShooting();
                 }
             }
         }
@@ -76,33 +72,23 @@ public class AutomaticShooter : MonoBehaviour
     {
         isShooting = false;
         currentTime = 0f;
-        currentTimer = 0f;
-        totalDelay = 0f;
-        foreach (var wave in projectilesPattern.projectileWaves)
-            totalDelay += wave.delayAfterWave;
+        recreateQueue();
+    }
+
+    private void recreateQueue()
+    {
+        shootingQueue.Clear();
+        float sum = 0f;
+        for(int i = 0; i < projectilesPattern.projectileWaves.Length; i++)
+        {
+            shootingQueue.Enqueue((sum, projectilesPattern.projectileWaves[i].projectileConfig));
+            sum += projectilesPattern.projectileWaves[i].delayAfterWave;
+        }
+        shootingQueue.Enqueue((sum, null));
     }
 
     public void StopShooting()
     {
         resetShooting();
-    }
-
-    void shootProjectile(int i)
-    {
-        ProjectileManager.Instance.Shoot((Vector2)transform.position + offsetPosition, direction, projectilesPattern.projectileWaves[i].projectileConfig);
-    }
-
-    void updateAccumulatedTime(out int currentTimerIndex)
-    {
-        float sum = 0f;
-        for (currentTimerIndex = 0; currentTimerIndex < projectilesPattern.projectileWaves.Length; currentTimerIndex++)
-        {
-            sum += projectilesPattern.projectileWaves[currentTimerIndex].delayAfterWave;
-            if (sum > currentTime)
-            {
-                currentTimer = sum;
-                break;
-            }
-        }
     }
 }

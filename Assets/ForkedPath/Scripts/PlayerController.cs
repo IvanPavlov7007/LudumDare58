@@ -9,23 +9,11 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 5;
     public event Action fixedUpdated;
 
-
     private FacingDirection lastDirection = FacingDirection.Down;
     private Rigidbody2D rb;
     
 
-    public enum FacingDirection
-    {
-        Up,
-        UpRight,
-        Right,
-        DownRight,
-        Down,
-        DownLeft,
-        Left,
-        UpLeft,
-        None
-    }
+    
 
     public FacingDirection CurrentDirection { get; private set; } = FacingDirection.None;
     public Vector2 CurrentDirectionVector => DirectionToVector(CurrentDirection);
@@ -109,4 +97,17 @@ public class PlayerController : MonoBehaviour
             default:                        return Vector2.zero;
         }
     }
+}
+
+public enum FacingDirection
+{
+    Up,
+    UpRight,
+    Right,
+    DownRight,
+    Down,
+    DownLeft,
+    Left,
+    UpLeft,
+    None
 }
