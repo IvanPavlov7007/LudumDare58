@@ -5,14 +5,9 @@ public class Health : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     public int maxHealth = 5;
-    public bool destroyOnDeath = true;
-
-    [Header("Invulnerability")]
-    public bool useIFrames = false;
-    public float iFrameDuration = 0.2f;
-    float iFrameTimer;
 
     public bool IsDead { get; private set; }
+    public bool IsInvincible { get; private set; }
 
     int currentHealth;
 
@@ -24,10 +19,9 @@ public class Health : MonoBehaviour, IDamageable
     public void TakeDamage(int amount, Vector2 hitPoint, Vector2 hitDir, ProjectileConfig source)
     {
         if (IsDead) return;
-        if (useIFrames && iFrameTimer > 0f) return;
+        if (IsInvincible) return;
 
         currentHealth -= amount;
-        iFrameTimer = iFrameDuration;
 
 
         DamageEventData damageEventData = new DamageEventData(this, amount, hitPoint, hitDir);
@@ -39,19 +33,17 @@ public class Health : MonoBehaviour, IDamageable
         }
     }
 
-    void Update()
+    public void InstantDie(bool fallenToDeath = false)
     {
-        if (iFrameTimer > 0f)
-            iFrameTimer -= Time.deltaTime;
+        currentHealth = 0;
+        IsDead = true;
+        GameEvents.Instance.OnDeath?.Invoke(new DeathEventData(GetComponent<Entity>(), fallenToDeath: fallenToDeath));
     }
 
     void Die(DamageEventData damageEventData)
     {
         IsDead = true;
-        GameEvents.Instance.OnDeath?.Invoke(new DeathEventData(damageEventData));
-
-        if (destroyOnDeath)
-            Destroy(gameObject);
+        GameEvents.Instance.OnDeath?.Invoke(new DeathEventData(GetComponent<Entity>(),damageEventData));
     }
 
     public void SetMaxHealth(int maxHealth)
@@ -63,5 +55,10 @@ public class Health : MonoBehaviour, IDamageable
     {
         currentHealth = maxHealth;
         IsDead = false;
+    }
+
+    internal void SetInvincible(bool v)
+    {
+        IsInvincible = v;
     }
 }

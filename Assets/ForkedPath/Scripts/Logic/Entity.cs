@@ -9,16 +9,11 @@ public partial class Entity : MonoBehaviour
     private EntityConfig _config;
     public EntityConfig config { get { return _config; } }
 
-    protected Health health;
-    protected Rigidbody2D rb;
-    protected bool isInitialized = false;
+    public Health health { get; protected set; }
+    public Rigidbody2D rb { get; protected set; }
+    public bool isInitialized { get; protected set; } = false;
 
     public EntityStateMachine StateMachine { get; protected set; } = new EntityStateMachine();
-
-    protected virtual void Update()
-    {
-        StateMachine.CurrentState?.Execute();
-    }
 
 
     public virtual void Initialize(EntityConfig config)
@@ -47,26 +42,38 @@ public partial class Entity : MonoBehaviour
     protected virtual void OnEnable()
     {
         GameEvents.Instance.OnDeath += HandleDeath;
+        GameEvents.Instance.OnDamage += HandleHit;
     }
 
     protected virtual void OnDisable()
     {
         GameEvents.Instance.OnDeath -= HandleDeath;
+        GameEvents.Instance.OnDamage -= HandleHit;
     }
 
-    protected virtual void HandleHit(IDamageable target, int amount, Vector2 hitPoint, Vector2 dir)
+    protected virtual void Update()
     {
-        // Override in subclasses
+        StateMachine.CurrentState?.OnUpdate();
+    }
+
+    protected virtual void HandleHit(DamageEventData damageEventData)
+    {
+        StateMachine.CurrentState?.OnDamage(damageEventData);
     }
 
     protected virtual void HandleDeath(DeathEventData deathEventData)
     {
-        
+        StateMachine.CurrentState?.OnDeath(deathEventData);
         //if ( target != null && target == health)
         //{
         //    if (deathFX) Instantiate(deathFX, transform.position, Quaternion.identity);
         //    GameEvents.Instance.OnFX?.Invoke(new FXEventData(transform.position, "Death", config));
         //    ScoreSystem.Instance.AddScore(scoreValue);
         //}
+    }
+
+    public virtual void Fall()
+    {
+
     }
 }
