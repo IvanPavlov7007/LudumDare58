@@ -10,4 +10,5 @@ public class EntityConfig : ScriptableObject
     public float moveSpeed = 5f;
     public GameObject deathFX;
     public AudioClip deathSound;
+    public int scoreValue = 1; // maybe food value
 }

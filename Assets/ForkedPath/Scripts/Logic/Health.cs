@@ -29,11 +29,13 @@ public class Health : MonoBehaviour, IDamageable
         currentHealth -= amount;
         iFrameTimer = iFrameDuration;
 
-        GameEvents.Instance.OnDamage?.Invoke(this, amount, hitPoint, hitDir);
+
+        DamageEventData damageEventData = new DamageEventData(this, amount, hitPoint, hitDir);
+        GameEvents.Instance.OnDamage?.Invoke(damageEventData);
 
         if (currentHealth <= 0)
         {
-            Die(hitPoint, hitDir);
+            Die(damageEventData);
         }
     }
 
@@ -43,10 +45,10 @@ public class Health : MonoBehaviour, IDamageable
             iFrameTimer -= Time.deltaTime;
     }
 
-    void Die(Vector2 hitPoint, Vector2 hitDir)
+    void Die(DamageEventData damageEventData)
     {
         IsDead = true;
-        GameEvents.Instance.OnDeath?.Invoke(this, hitPoint, hitDir);
+        GameEvents.Instance.OnDeath?.Invoke(new DeathEventData(damageEventData));
 
         if (destroyOnDeath)
             Destroy(gameObject);
