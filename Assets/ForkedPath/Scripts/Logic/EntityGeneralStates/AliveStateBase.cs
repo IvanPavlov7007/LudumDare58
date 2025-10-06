@@ -17,7 +17,7 @@ public class AliveStateBase : StateBase
     {
         if (damageEventData.target != null && damageEventData.target == entity.health)
         {
-            entity.StateMachine.ChangeState(new HitStateBase(entity, damageEventData));
+            entity.StateController.setHitState(damageEventData);
         }
     }
 
@@ -27,11 +27,11 @@ public class AliveStateBase : StateBase
         {
             if (deathEventData.fallenToDeath)
             {
-                entity.StateMachine.ChangeState(new FallingStateBase(entity, deathEventData));
+                entity.StateController.setFallingState(deathEventData);
             }
             else
             {
-                entity.StateMachine.ChangeState(new DeadStateBase(entity, deathEventData));
+                entity.StateController.setDeadState(deathEventData);
             }
         }
     }

@@ -30,6 +30,7 @@ public interface IState
     EntityState Type { get; }
     void OnEnter();
     void OnUpdate();
+    void OnFixedUpdate();
     void OnExit();
     void OnDamage(DamageEventData damageEventData);
     void OnDeath(DeathEventData deathEventData);
@@ -48,6 +49,7 @@ public abstract class StateBase : IState
 
     public virtual void OnEnter() { }
     public virtual void OnUpdate() { }
+    public virtual void OnFixedUpdate() { }
     public virtual void OnExit() { }
     public abstract void OnDamage(DamageEventData damageEventData);
     public abstract void OnDeath(DeathEventData deathEventData);

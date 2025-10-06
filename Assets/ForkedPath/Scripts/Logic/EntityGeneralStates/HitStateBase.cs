@@ -31,11 +31,11 @@ public class HitStateBase : StateBase
         {
             if (deathEventData.fallenToDeath)
             {
-                entity.StateMachine.ChangeState(new FallingStateBase(entity, deathEventData));
+                entity.StateController.setFallingState(deathEventData);
             }
             else
             {
-                entity.StateMachine.ChangeState(new DeadStateBase(entity, deathEventData));
+                entity.StateController.setDeadState(deathEventData);
             }
         }
     }

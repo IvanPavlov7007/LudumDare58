@@ -11,9 +11,6 @@ public class PlayerController : MonoBehaviour
 
     private FacingDirection lastDirection = FacingDirection.Down;
     private Rigidbody2D rb;
-    
-
-    
 
     public FacingDirection CurrentDirection { get; private set; } = FacingDirection.None;
     public Vector2 CurrentDirectionVector => DirectionToVector(CurrentDirection);

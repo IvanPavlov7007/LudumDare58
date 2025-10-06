@@ -14,6 +14,10 @@ public partial class Entity : MonoBehaviour
     public bool isInitialized { get; protected set; } = false;
 
     public EntityStateMachine StateMachine { get; protected set; } = new EntityStateMachine();
+    public EntityStateController StateController { get; set; }
+
+    //shared data for states to use
+    public Vector2 moveDirection;
 
 
     public virtual void Initialize(EntityConfig config)
@@ -26,6 +30,7 @@ public partial class Entity : MonoBehaviour
             health.SetMaxHealth(config.maxHealth);
             health.ResetHealth();
         }
+        isInitialized = true;
     }
 
     public virtual void SetMoveDirection(Vector2 normalized)
@@ -54,6 +59,11 @@ public partial class Entity : MonoBehaviour
     protected virtual void Update()
     {
         StateMachine.CurrentState?.OnUpdate();
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        StateMachine.CurrentState?.OnFixedUpdate();
     }
 
     protected virtual void HandleHit(DamageEventData damageEventData)
