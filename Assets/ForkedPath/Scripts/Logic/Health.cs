@@ -11,6 +11,8 @@ public class Health : MonoBehaviour, IDamageable
 
     int currentHealth;
 
+    public int CurrentHealth => currentHealth;
+
     void Awake()
     {
         currentHealth = maxHealth;
@@ -31,6 +33,11 @@ public class Health : MonoBehaviour, IDamageable
         {
             Die(damageEventData);
         }
+    }
+
+    public void Fall()
+    {
+        InstantDie(fallenToDeath: true);
     }
 
     public void InstantDie(bool fallenToDeath = false)

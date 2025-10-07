@@ -11,4 +11,7 @@ public class EntityConfig : ScriptableObject
     public GameObject deathFX;
     public AudioClip deathSound;
     public int scoreValue = 1; // maybe food value
+    [Header("Invincibilty")]
+    public bool invincibleAfterHit = false;
+    public float invincibilityDuration = 1f;
 }

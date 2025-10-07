@@ -1,41 +1,45 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// For animation, effects, control changes when hit but not dead
-/// Might transition to Invincible or Dead state
-/// </summary>
-public class HitStateBase : StateBase
+
+namespace Entities.Experimental
 {
-    protected DamageEventData damageEventData;
-    protected float hitDuration = 0.5f; // Example duration
-    protected float hitTimer = 0f;
-
-    public HitStateBase(Entity entity, DamageEventData damageEventData,float hitDuration = 0.5f) : base(entity)
+    /// <summary>
+    /// For animation, effects, control changes when hit but not dead
+    /// Might transition to Invincible or Dead state
+    /// </summary>
+    public class HitStateBase : StateBase
     {
-        this.damageEventData = damageEventData;
-        this.hitDuration = hitDuration;
-        OnDamage(damageEventData);
-    }
+        protected DamageEventData damageEventData;
+        protected float hitDuration = 0.5f; // Example duration
+        protected float hitTimer = 0f;
 
-    public override EntityState Type => EntityState.Hit;
-
-    public override void OnDamage(DamageEventData damageEventData)
-    {
-        hitTimer = 0f;
-        // FX etc
-    }
-
-    public override void OnDeath(DeathEventData deathEventData)
-    {
-        if (deathEventData.entity != null && deathEventData.entity == entity)
+        public HitStateBase(Entity entity, DamageEventData damageEventData, float hitDuration = 0.5f) : base(entity)
         {
-            if (deathEventData.fallenToDeath)
+            this.damageEventData = damageEventData;
+            this.hitDuration = hitDuration;
+            OnDamage(damageEventData);
+        }
+
+        public override EntityState Type => EntityState.Hit;
+
+        public override void OnDamage(DamageEventData damageEventData)
+        {
+            hitTimer = 0f;
+            // FX etc
+        }
+
+        public override void OnDeath(DeathEventData deathEventData)
+        {
+            if (deathEventData.entity != null && deathEventData.entity == entity)
             {
-                entity.StateController.setFallingState(deathEventData);
-            }
-            else
-            {
-                entity.StateController.setDeadState(deathEventData);
+                if (deathEventData.fallenToDeath)
+                {
+                    stateController.setFallingState(deathEventData);
+                }
+                else
+                {
+                    stateController.setDeadState(deathEventData);
+                }
             }
         }
     }

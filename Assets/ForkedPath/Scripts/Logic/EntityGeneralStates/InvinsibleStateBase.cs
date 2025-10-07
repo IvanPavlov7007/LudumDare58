@@ -1,50 +1,54 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
-public class InvincibleStateBase : StateBase
+
+namespace Entities.Experimental
 {
-    protected float invincibilityDuration = 1.0f;
-    public InvincibleStateBase(Entity entity, float invincibilityDuration) : base(entity)
+    public class InvincibleStateBase : StateBase
     {
-        this.invincibilityDuration = invincibilityDuration;
-    }
-
-    public override EntityState Type => EntityState.Invincible;
-
-    override public void OnEnter()
-    {
-        base.OnEnter();
-        entity.health.SetInvincible(true);
-        entity.StartCoroutine(EndInvincibilityAfterDelay());
-        // Play FX, animation, sound etc
-    }
-
-    protected virtual IEnumerator EndInvincibilityAfterDelay()
-    {
-        yield return new WaitForSeconds(invincibilityDuration);
-        entity.health.SetInvincible(false);
-        entity.StateMachine.ChangeState(new AliveStateBase(entity));
-    }
-
-    public override void OnDamage(DamageEventData damageEventData)
-    {
-        if (damageEventData.target != null && damageEventData.target == entity.health)
+        protected float invincibilityDuration = 1.0f;
+        public InvincibleStateBase(Entity entity, float invincibilityDuration) : base(entity)
         {
-            Debug.LogError($"{entity.name} is invincible and should not take any damage");
+            this.invincibilityDuration = invincibilityDuration;
         }
-    }
 
-    public override void OnDeath(DeathEventData deathEventData)
-    {
-        if (deathEventData.entity != null && deathEventData.entity == entity)
+        public override EntityState Type => EntityState.Invincible;
+
+        override public void OnEnter()
         {
-            if (deathEventData.fallenToDeath)
+            base.OnEnter();
+            entity.health.SetInvincible(true);
+            entity.StartCoroutine(EndInvincibilityAfterDelay());
+            // Play FX, animation, sound etc
+        }
+
+        protected virtual IEnumerator EndInvincibilityAfterDelay()
+        {
+            yield return new WaitForSeconds(invincibilityDuration);
+            entity.health.SetInvincible(false);
+            stateMachine.ChangeState(new AliveStateBase(entity));
+        }
+
+        public override void OnDamage(DamageEventData damageEventData)
+        {
+            if (damageEventData.target != null && damageEventData.target == entity.health)
             {
-                entity.StateController.setFallingState(deathEventData);
+                Debug.LogError($"{entity.name} is invincible and should not take any damage");
             }
-            else
+        }
+
+        public override void OnDeath(DeathEventData deathEventData)
+        {
+            if (deathEventData.entity != null && deathEventData.entity == entity)
             {
-                entity.StateController.setDeadState(deathEventData);
+                if (deathEventData.fallenToDeath)
+                {
+                    stateController.setFallingState(deathEventData);
+                }
+                else
+                {
+                    stateController.setDeadState(deathEventData);
+                }
             }
         }
     }

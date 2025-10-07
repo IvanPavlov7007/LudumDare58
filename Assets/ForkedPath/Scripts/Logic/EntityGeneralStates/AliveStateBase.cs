@@ -1,37 +1,41 @@
 ﻿using UnityEngine;
-public class AliveStateBase : StateBase
+
+namespace Entities.Experimental
 {
-    public AliveStateBase(Entity entity) : base(entity)
+    public class AliveStateBase : StateBase
     {
-    }
-
-    public override EntityState Type => EntityState.Alive;
-
-    public override void OnEnter()
-    {
-        //gain controls
-        //start AI
-    }
-
-    public override void OnDamage(DamageEventData damageEventData)
-    {
-        if (damageEventData.target != null && damageEventData.target == entity.health)
+        public AliveStateBase(Entity entity) : base(entity)
         {
-            entity.StateController.setHitState(damageEventData);
         }
-    }
 
-    public override void OnDeath(DeathEventData deathEventData)
-    {
-        if(deathEventData.entity != null && deathEventData.entity == entity)
+        public override EntityState Type => EntityState.Alive;
+
+        public override void OnEnter()
         {
-            if (deathEventData.fallenToDeath)
+            //gain controls
+            //start AI
+        }
+
+        public override void OnDamage(DamageEventData damageEventData)
+        {
+            if (damageEventData.target != null && damageEventData.target == entity.health)
             {
-                entity.StateController.setFallingState(deathEventData);
+                stateController.setHitState(damageEventData);
             }
-            else
+        }
+
+        public override void OnDeath(DeathEventData deathEventData)
+        {
+            if(deathEventData.entity != null && deathEventData.entity == entity)
             {
-                entity.StateController.setDeadState(deathEventData);
+                if (deathEventData.fallenToDeath)
+                {
+                    stateController.setFallingState(deathEventData);
+                }
+                else
+                {
+                    stateController.setDeadState(deathEventData);
+                }
             }
         }
     }

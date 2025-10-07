@@ -1,50 +1,54 @@
-﻿using System.Collections;
+﻿using Entities.Experimental;
+using System.Collections;
 using UnityEngine;
-
-public class TomatoController : MonoBehaviour
+namespace States.Experimental
 {
-    Entity entity;
-    private void Awake()
+    public class TomatoController : MonoBehaviour
     {
-        entity = GetComponent<Entity>();
+        Entity entity;
+        EntityStateController stateController;
+        private void Awake()
+        {
+            entity = GetComponent<Entity>();
+        }
+
+        private IEnumerator Start()
+        {
+            yield return new WaitUntil(() => entity != null && entity.isInitialized);
+            stateController = new TomatoStateController(entity);
+            stateController.Initialize();
+        }
     }
 
-    private IEnumerator Start()
+    public class TomatoStateController : EntityStateController
     {
-        yield return new WaitUntil(() => entity != null && entity.isInitialized);
-        entity.StateController = new TomatoStateController(entity);
-        entity.StateController.Initialize();
-    }
-}
+        public TomatoStateController(Entity entity) : base(entity)
+        {
+        }
 
-public class TomatoStateController : EntityStateController
-{
-    public TomatoStateController(Entity entity) : base(entity)
-    {
-    }
+        protected override AliveStateBase getAliveState(Entity entity)
+        {
+            return null;// new MovingInOneDirectionAliveState(entity, entity.moveDirection);
+        }
 
-    protected override AliveStateBase getAliveState(Entity entity)
-    {
-        return new MovingInOneDirectionAliveState(entity, entity.moveDirection);
-    }
+        protected override DeadStateBase getDeadState(Entity entity, DeathEventData deathEventData)
+        {
+            throw new System.NotImplementedException();
+        }
 
-    protected override DeadStateBase getDeadState(Entity entity, DeathEventData deathEventData)
-    {
-        throw new System.NotImplementedException();
-    }
+        protected override FallingStateBase getFallingState(Entity entity, DeathEventData deathEventData)
+        {
+            throw new System.NotImplementedException();
+        }
 
-    protected override FallingStateBase getFallingState(Entity entity, DeathEventData deathEventData)
-    {
-        throw new System.NotImplementedException();
-    }
+        protected override HitStateBase getHitState(Entity entity, DamageEventData damageEventData)
+        {
+            throw new System.NotImplementedException();
+        }
 
-    protected override HitStateBase getHitState(Entity entity, DamageEventData damageEventData)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    protected override InvincibleStateBase getInvincibleState(Entity entity, float duration = 0.5F)
-    {
-        throw new System.NotImplementedException();
+        protected override InvincibleStateBase getInvincibleState(Entity entity, float duration = 0.5F)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

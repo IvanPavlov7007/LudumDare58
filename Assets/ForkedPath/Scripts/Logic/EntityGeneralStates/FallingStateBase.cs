@@ -1,32 +1,36 @@
 ﻿using UnityEngine;
-public class FallingStateBase : StateBase
+
+namespace Entities.Experimental
 {
-    protected DeathEventData deathEventData;
-    public FallingStateBase(Entity entity, DeathEventData deathEventData) : base(entity)
+    public class FallingStateBase : StateBase
     {
-        this.deathEventData = deathEventData;
-    }
-
-    public override EntityState Type => EntityState.Falling;
-
-    public override void OnEnter()
-    {
-        // Disable controls, AI etc
-    }
-
-    public override void OnDamage(DamageEventData damageEventData)
-    {
-        if (damageEventData.target != null && damageEventData.target == entity.health)
+        protected DeathEventData deathEventData;
+        public FallingStateBase(Entity entity, DeathEventData deathEventData) : base(entity)
         {
-            Debug.LogError($"{entity.name} is dead and should not take any damage");
+            this.deathEventData = deathEventData;
         }
-    }
 
-    public override void OnDeath(DeathEventData deathEventData)
-    {
-        if (deathEventData.entity != null)
+        public override EntityState Type => EntityState.Falling;
+
+        public override void OnEnter()
         {
-            Debug.LogError($"{entity.name} is already falling, can't be dead again");
+            // Disable controls, AI etc
+        }
+
+        public override void OnDamage(DamageEventData damageEventData)
+        {
+            if (damageEventData.target != null && damageEventData.target == entity.health)
+            {
+                Debug.LogError($"{entity.name} is dead and should not take any damage");
+            }
+        }
+
+        public override void OnDeath(DeathEventData deathEventData)
+        {
+            if (deathEventData.entity != null)
+            {
+                Debug.LogError($"{entity.name} is already falling, can't be dead again");
+            }
         }
     }
 }
