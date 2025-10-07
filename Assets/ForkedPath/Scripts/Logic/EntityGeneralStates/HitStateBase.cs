@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 
 namespace Entities.Experimental
 {
+    [Obsolete]
     /// <summary>
     /// For animation, effects, control changes when hit but not dead
     /// Might transition to Invincible or Dead state

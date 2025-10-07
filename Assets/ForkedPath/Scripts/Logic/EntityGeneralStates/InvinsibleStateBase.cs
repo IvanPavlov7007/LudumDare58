@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Entities.Experimental
 {
+    [Obsolete]
     public class InvincibleStateBase : StateBase
     {
         protected float invincibilityDuration = 1.0f;
@@ -17,7 +18,7 @@ namespace Entities.Experimental
         override public void OnEnter()
         {
             base.OnEnter();
-            entity.health.SetInvincible(true);
+            entity.Health.SetInvincible(true);
             entity.StartCoroutine(EndInvincibilityAfterDelay());
             // Play FX, animation, sound etc
         }
@@ -25,13 +26,13 @@ namespace Entities.Experimental
         protected virtual IEnumerator EndInvincibilityAfterDelay()
         {
             yield return new WaitForSeconds(invincibilityDuration);
-            entity.health.SetInvincible(false);
+            entity.Health.SetInvincible(false);
             stateMachine.ChangeState(new AliveStateBase(entity));
         }
 
         public override void OnDamage(DamageEventData damageEventData)
         {
-            if (damageEventData.target != null && damageEventData.target == entity.health)
+            if (damageEventData.target != null && damageEventData.target == entity.Health as IDamageable)
             {
                 Debug.LogError($"{entity.name} is invincible and should not take any damage");
             }

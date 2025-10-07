@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Entities.Experimental
 {
+    [Obsolete]
     public class AliveStateBase : StateBase
     {
         public AliveStateBase(Entity entity) : base(entity)
@@ -18,7 +20,7 @@ namespace Entities.Experimental
 
         public override void OnDamage(DamageEventData damageEventData)
         {
-            if (damageEventData.target != null && damageEventData.target == entity.health)
+            if (damageEventData.target != null && damageEventData.target == entity.Health as IDamageable)
             {
                 stateController.setHitState(damageEventData);
             }

@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Entities.Experimental
 {
+    [Obsolete]
     public class FallingStateBase : StateBase
     {
         protected DeathEventData deathEventData;
@@ -19,7 +21,7 @@ namespace Entities.Experimental
 
         public override void OnDamage(DamageEventData damageEventData)
         {
-            if (damageEventData.target != null && damageEventData.target == entity.health)
+            if (damageEventData.target != null && damageEventData.target == entity.Health as IDamageable)
             {
                 Debug.LogError($"{entity.name} is dead and should not take any damage");
             }

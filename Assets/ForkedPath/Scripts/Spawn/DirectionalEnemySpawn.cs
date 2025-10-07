@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class DirectionalEnemySpawn : EnemySpawn
@@ -42,7 +43,7 @@ public class DirectionalEnemySpawn : EnemySpawn
         Entity enemy = base.spawnEnemy(config, position);
         if (enemy != null)
         {
-            enemy.SetMoveDirection(direction.sqrMagnitude > 1e-6f ? direction.normalized : Vector2.right);
+            enemy.AddComponent<EntitySpawnData>().moveDirection = direction;
         }
         return enemy;
     }

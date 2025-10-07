@@ -9,4 +9,7 @@ public class GameEvents : Singleton<GameEvents>
     public Action<DamageEventData> OnDamage;
     public Action<DeathEventData> OnDeath;
     public Action<PlayerEnterTrigger> OnPlayerEnterTrigger;
+    public Action<InvincibilityEventData> OnInvincibilityChanged;
+    public Action<FallingEventData> OnFallingToDeathStarted;
+    public Action<CorpseLandedEventData> OnCorpseLanded;
 }

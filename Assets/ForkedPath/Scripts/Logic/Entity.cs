@@ -4,66 +4,61 @@ using UnityEngine;
 
 public partial class Entity : MonoBehaviour
 {
-
-    public GameObject deathFX;
     [SerializeField]
     private EntityConfig _config;
-    public EntityConfig config { get { return _config; } }
+    public EntityConfig Config { get { return _config; } }
 
-    public Health health { get; protected set; }
-    public Rigidbody2D rb { get; protected set; }
-    public bool isInitialized { get; protected set; } = false;
+    public Health Health { get; protected set; }
+    public Rigidbody2D Rb { get; protected set; }
+    public bool IsInitialized { get; protected set; } = false;
 
     protected EntityState state = EntityState.Alive;
     public EntityState CurrentState => state;
 
     public event Action<EntityState> StateChanged;
 
-    protected Coroutine invinsibilityRoutine;
-
-    //shared data for states to use
-    public Vector2 moveDirection;
-
+    protected Coroutine invincibilityCoroutine;
 
     public virtual void Initialize(EntityConfig config)
     {
-        if (isInitialized) return;
+        if (IsInitialized) return;
         _config = config;
-        if (health == null) health = gameObject.AddComponent<Health>();
-        if (health != null && config != null)
+        if (Health == null) Health = gameObject.AddComponent<Health>();
+        if (Health != null && config != null)
         {
-            health.SetMaxHealth(config.maxHealth);
-            health.ResetHealth();
+            Health.SetMaxHealth(config.maxHealth);
+            Health.ResetHealth();
         }
-        isInitialized = true;
-    }
-
-    public virtual void SetMoveDirection(Vector2 normalized)
-    {
-        rb.linearVelocity = normalized * config.moveSpeed;
+        IsInitialized = true;
     }
 
     protected virtual void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        Rb = GetComponent<Rigidbody2D>();
     }
 
     private void Start()
     {
-        if(!isInitialized && config != null)
-            Initialize(config);
+        if(!IsInitialized && Config != null)
+            Initialize(Config);
     }
 
     protected virtual void OnEnable()
     {
         GameEvents.Instance.OnDeath += HandleDeath;
         GameEvents.Instance.OnDamage += HandleHit;
+        GameEvents.Instance.OnInvincibilityChanged += OnInvincibilityChanged;
+        GameEvents.Instance.OnFallingToDeathStarted += OnFallingToDeathStarted;
+        GameEvents.Instance.OnCorpseLanded += OnCorpseLanded;
     }
 
     protected virtual void OnDisable()
     {
         GameEvents.Instance.OnDeath -= HandleDeath;
         GameEvents.Instance.OnDamage -= HandleHit;
+        GameEvents.Instance.OnInvincibilityChanged -= OnInvincibilityChanged;
+        GameEvents.Instance.OnFallingToDeathStarted -= OnFallingToDeathStarted;
+        GameEvents.Instance.OnCorpseLanded -= OnCorpseLanded;
     }
 
     protected virtual void ChangeState(EntityState newState)
@@ -75,50 +70,20 @@ public partial class Entity : MonoBehaviour
         StateChanged?.Invoke(state);
     }
 
-    protected virtual void ExitState(EntityState oldState)
-    {
-        switch (oldState)
-        {
-            case EntityState.Invincible:
-                if (invinsibilityRoutine != null)
-                {
-                    StopCoroutine(invinsibilityRoutine);
-                    invinsibilityRoutine = null;
-                }
-                health.SetInvincible(false);
-                break;
-        }
-    }
-
-    protected virtual void EnterState(EntityState newState)
-    {
-        switch (newState)
-        {
-            case EntityState.Invincible:
-                if (invinsibilityRoutine != null) StopCoroutine(invinsibilityRoutine);
-                invinsibilityRoutine = StartCoroutine(InvincibleForSeconds(config.invincibilityDuration));
-                break;
-        }
-    }
-
-    private IEnumerator InvincibleForSeconds(float duration)
-    {
-        health.SetInvincible(true);
-        yield return new WaitForSeconds(duration);
-        health.SetInvincible(false);
-    }
+    protected virtual void ExitState(EntityState oldState) { }
+    protected virtual void EnterState(EntityState newState) { }
 
     protected virtual void HandleHit(DamageEventData damageEventData)
     {
-        if (health == null || damageEventData.target != health) return;
+        if (Health == null || damageEventData.target != Health as IDamageable) return;
 
         switch (CurrentState)
         {
             case EntityState.Alive:
             case EntityState.Hit:
                 ChangeState(EntityState.Hit);
-                if(config.invincibleAfterHit && health.CurrentHealth > 0)
-                    ChangeState(EntityState.Invincible);
+                if (Config.invincibleAfterHit && Health.CurrentHealth > 0)
+                    Health.BeginInvincibility(Config.invincibilityDuration);
                 break;
             case EntityState.Dead:
                 Debug.LogError($"{name} is dead and should not take any damage");
@@ -145,14 +110,15 @@ public partial class Entity : MonoBehaviour
                 case EntityState.Invincible:
                     ChangeState(EntityState.Falling);
                     break;
+                case EntityState.Falling:
+                    // fall finalized: transition to dead now
+                    ChangeState(EntityState.Dead);
+                    break;
                 case EntityState.Dead:
                     ChangeState(EntityState.DeadFalling);
                     break;
                 case EntityState.DeadFalling:
                     Debug.LogError($"{name} is already dead falling");
-                    break;
-                case EntityState.Falling:
-                    Debug.LogError($"{name} is already falling and should not fall to death again");
                     break;
             }
         }
@@ -173,12 +139,42 @@ public partial class Entity : MonoBehaviour
                     break;
             }
         }
+    }
 
-        //if ( target != null && target == health)
-        //{
-        //    if (deathFX) Instantiate(deathFX, transform.position, Quaternion.identity);
-        //    GameEvents.Instance.OnFX?.Invoke(new FXEventData(transform.position, "Death", config));
-        //    ScoreSystem.Instance.AddScore(scoreValue);
-        //}
+    void OnInvincibilityChanged(InvincibilityEventData e)
+    {
+        if (e.Entity != this) return;
+        if (e.IsInvincible) ChangeState(EntityState.Invincible);
+        else if (CurrentState == EntityState.Invincible && !Health.IsDead) ChangeState(EntityState.Alive);
+    }
+
+    void OnFallingToDeathStarted(FallingEventData e)
+    {
+        if (e.entity != this) return;
+
+        switch (CurrentState)
+        {
+            case EntityState.Alive:
+            case EntityState.Hit:
+            case EntityState.Invincible:
+                ChangeState(EntityState.Falling);
+                break;
+            case EntityState.Dead:
+                ChangeState(EntityState.DeadFalling);
+                break;
+            default:
+                // if already Falling/DeadFalling, ignore
+                Debug.LogWarning($"{name} should not start falling to death from state {CurrentState}");
+                break;
+        }
+    }
+
+    void OnCorpseLanded(CorpseLandedEventData e)
+    {
+        if (e.entity != this) return;
+        if (CurrentState == EntityState.DeadFalling)
+        {
+            ChangeState(EntityState.Dead);
+        }
     }
 }
