@@ -21,5 +21,10 @@ public class ParticlesManager : Singleton<ParticlesManager>
             if(config.spawnFX)
                 Destroy(Instantiate(config.spawnFX, data.position, Quaternion.identity, data.parent).gameObject, 0.5f);
         }
+        else if (data.context == "Hit")
+        {
+            EntityConfig config = data.config as EntityConfig;
+            Debug.Log("Hit FX");
+        }
     }
 }

@@ -15,7 +15,8 @@ public class PlayerEnterTrigger : MonoBehaviour
 
     private void OnEnter(Collider2D collider)
     {
-        if(Player.Instance.ColliderIsPlayer(collider))
+        if(enabled == false) return;
+        if (Player.Instance.ColliderIsPlayer(collider))
         {
             GameEvents.Instance.OnPlayerEnterTrigger?.Invoke(this);
         }

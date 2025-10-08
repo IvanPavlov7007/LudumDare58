@@ -23,7 +23,7 @@ public class Health : MonoBehaviour, IDamageable
         currentHealth = maxHealth;
     }
 
-    public void TakeDamage(int amount, Vector2 hitPoint, Vector2 hitDir, ProjectileConfig source)
+    public void TakeDamage(int amount, string context, Vector2 hitPoint, Vector2 hitDir, ScriptableObject source)
     {
         if (IsDead) return;
         if (IsInvincible) return;
@@ -31,7 +31,7 @@ public class Health : MonoBehaviour, IDamageable
 
         currentHealth -= amount;
 
-        DamageEventData damageEventData = new(this, amount, hitPoint, hitDir);
+        DamageEventData damageEventData = new(this, context, amount, hitPoint, hitDir, source);
         GameEvents.Instance.OnDamage?.Invoke(damageEventData);
 
         if (currentHealth <= 0)

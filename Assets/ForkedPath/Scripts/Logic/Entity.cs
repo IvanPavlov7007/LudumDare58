@@ -18,6 +18,7 @@ public partial class Entity : MonoBehaviour
     public event Action<EntityState> StateChanged;
 
     protected Coroutine invincibilityCoroutine;
+    protected Coroutine hitStunCoroutine; // NEW
 
     public virtual void Initialize(EntityConfig config)
     {
@@ -59,6 +60,8 @@ public partial class Entity : MonoBehaviour
         GameEvents.Instance.OnInvincibilityChanged -= OnInvincibilityChanged;
         GameEvents.Instance.OnFallingToDeathStarted -= OnFallingToDeathStarted;
         GameEvents.Instance.OnCorpseLanded -= OnCorpseLanded;
+
+        CancelHitStun(); // NEW
     }
 
     protected virtual void ChangeState(EntityState newState)
@@ -82,9 +85,28 @@ public partial class Entity : MonoBehaviour
             case EntityState.Alive:
             case EntityState.Hit:
                 ChangeState(EntityState.Hit);
-                if (Config.invincibleAfterHit && Health.CurrentHealth > 0)
+
+                bool willGoInvincible = Config.invincibleAfterHit && Health.CurrentHealth > 0;
+                if (willGoInvincible)
+                {
+                    // invincibility owns returning to Alive via event
+                    CancelHitStun();
                     Health.BeginInvincibility(Config.invincibilityDuration);
+                }
+                else
+                {
+                    float stun = Mathf.Max(0f, Config.hitStunDuration);
+                    if (stun <= 0f)
+                    {
+                        ChangeState(EntityState.Alive);
+                    }
+                    else
+                    {
+                        RestartHitStun(stun);
+                    }
+                }
                 break;
+
             case EntityState.Dead:
                 Debug.LogError($"{name} is dead and should not take any damage");
                 break;
@@ -100,6 +122,9 @@ public partial class Entity : MonoBehaviour
     protected virtual void HandleDeath(DeathEventData deathEventData)
     {
         if(deathEventData.entity != this) return;
+
+        // any death path should cancel pending hit-stun
+        CancelHitStun();
 
         if(deathEventData.fallenToDeath)
         {
@@ -144,13 +169,22 @@ public partial class Entity : MonoBehaviour
     void OnInvincibilityChanged(InvincibilityEventData e)
     {
         if (e.Entity != this) return;
-        if (e.IsInvincible) ChangeState(EntityState.Invincible);
-        else if (CurrentState == EntityState.Invincible && !Health.IsDead) ChangeState(EntityState.Alive);
+        if (e.IsInvincible)
+        {
+            CancelHitStun(); // avoid racing the stun timer
+            ChangeState(EntityState.Invincible);
+        }
+        else if (CurrentState == EntityState.Invincible && !Health.IsDead)
+        {
+            ChangeState(EntityState.Alive);
+        }
     }
 
     void OnFallingToDeathStarted(FallingEventData e)
     {
         if (e.entity != this) return;
+
+        CancelHitStun(); // cancel stun if we start falling
 
         switch (CurrentState)
         {
@@ -175,6 +209,34 @@ public partial class Entity : MonoBehaviour
         if (CurrentState == EntityState.DeadFalling)
         {
             ChangeState(EntityState.Dead);
+        }
+    }
+
+    // --- Hit-stun helpers ---
+    void RestartHitStun(float duration)
+    {
+        CancelHitStun();
+        hitStunCoroutine = StartCoroutine(HitStunDelay(duration));
+    }
+
+    void CancelHitStun()
+    {
+        if (hitStunCoroutine != null)
+        {
+            StopCoroutine(hitStunCoroutine);
+            hitStunCoroutine = null;
+        }
+    }
+
+    IEnumerator HitStunDelay(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        hitStunCoroutine = null;
+
+        // Only return to Alive if still stunned and not dead/falling
+        if (CurrentState == EntityState.Hit && !Health.IsDead && !Health.IsFallingToDeath)
+        {
+            ChangeState(EntityState.Alive);
         }
     }
 }

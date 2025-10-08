@@ -8,7 +8,7 @@ public class BlobController : MonoBehaviour
     private Entity entity;
     private EntitySpawnData spawnData;
 
-    private float jumpCycleDuration = 0.5f;
+    private readonly float jumpCycleDuration = 0.5f;
 
     private void Awake()
     {

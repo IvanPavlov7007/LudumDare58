@@ -34,4 +34,5 @@ public class CustomTrigger2D : MonoBehaviour
         if (onExit != null)
             onExit.Invoke(collision);
     }
+
 }

@@ -30,7 +30,7 @@ public class Projectile : MonoBehaviour
         var damageable = col.GetComponentInParent<IDamageable>();
         if (damageable != null && !damageable.IsDead)
         {
-            damageable.TakeDamage(config.damage, col.ClosestPoint(transform.position), -velocity.normalized, config);
+            damageable.TakeDamage(config.damage, "Projectile", col.ClosestPoint(transform.position), -velocity.normalized, config);
             GameEvents.Instance.OnFX?.Invoke(new FXEventData(transform.position, "Impact", config, parent: col.transform));
             Destroy(gameObject);
         }
