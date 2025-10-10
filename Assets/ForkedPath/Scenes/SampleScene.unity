@@ -2584,7 +2584,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 7
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -2734,7 +2734,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 60
-    OrthographicSize: 5
+    OrthographicSize: 7
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -3178,7 +3178,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -3206,16 +3206,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a7ad954c9c59724d854b6a69f0bc101, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onTriggerEnter:
+  onEnter:
     m_PersistentCalls:
       m_Calls: []
-  onTriggerStay:
+  onStay:
     m_PersistentCalls:
       m_Calls: []
-  onTriggerExit:
-    m_PersistentCalls:
-      m_Calls: []
-  OnColliderEnter:
+  onExit:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &1006450530
