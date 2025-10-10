@@ -7,7 +7,7 @@ public class EntityStateDebugOverlay : MonoBehaviour
     [Header("Overlay Settings")]
     public float minimalStateDisplayTime = 0.1f;
     public float overlayAlpha = 0.4f;
-    public Sprite overlaySprite; // Assign a simple square or circle sprite in inspector
+    public Sprite overlaySprite; // Optional; if null, a shared white sprite will be generated.
 
     private Entity entity;
     private GameObject overlayGO;
@@ -16,12 +16,14 @@ public class EntityStateDebugOverlay : MonoBehaviour
     private EntityState lastState;
     private float lastStateChangeTime;
 
-    private static readonly Color AliveColor = new Color(0f, 1f, 0f, 0.4f);        // Green
-    private static readonly Color HitColor = new Color(1f, 1f, 0f, 0.4f);          // Yellow
-    private static readonly Color DeadColor = new Color(1f, 0f, 0f, 0.4f);         // Red
-    private static readonly Color FallingColor = new Color(0.5f, 0f, 0.5f, 0.4f);  // Purple
-    private static readonly Color InvincibleColor = new Color(0f, 0.5f, 1f, 0.4f); // Blue
-    private static readonly Color DeadFallingColor = new Color(1f, 0.4f, 0.7f, 0.4f); // Pink
+    private static Sprite s_DefaultOverlaySprite;
+
+    private static readonly Color AliveColor       = new Color(0f,   1f,   0f,   1f);   // Green
+    private static readonly Color HitColor         = new Color(1f,   1f,   0f,   1f);   // Yellow
+    private static readonly Color DeadColor        = new Color(1f,   0f,   0f,   1f);   // Red
+    private static readonly Color FallingColor     = new Color(0.5f, 0f,   0.5f, 1f);   // Purple
+    private static readonly Color InvincibleColor  = new Color(0f,   0.5f, 1f,   1f);   // Blue
+    private static readonly Color DeadFallingColor = new Color(1f,   0.4f, 0.7f, 1f);   // Pink
 
     void Awake()
     {
@@ -39,8 +41,7 @@ public class EntityStateDebugOverlay : MonoBehaviour
     void OnDisable()
     {
         entity.StateChanged -= OnEntityStateChanged;
-        if (colorCoroutine != null)
-            StopCoroutine(colorCoroutine);
+        if (colorCoroutine != null) StopCoroutine(colorCoroutine);
         overlayGO.SetActive(false);
     }
 
@@ -54,30 +55,33 @@ public class EntityStateDebugOverlay : MonoBehaviour
         overlayRenderer.color = Color.clear;
         overlayGO.SetActive(false);
 
-        // Optionally, scale overlay to fit entity bounds
         var bounds = GetEntityBounds();
         overlayGO.transform.localScale = new Vector3(bounds.size.x, bounds.size.y, 1f);
     }
 
-    private Sprite GenerateDefaultSprite()
+    private static Sprite GenerateDefaultSprite()
     {
-        // 16x16 white texture
-        Texture2D tex = new Texture2D(16, 16, TextureFormat.ARGB32, false);
-        Color[] pixels = new Color[16 * 16];
+        if (s_DefaultOverlaySprite != null) return s_DefaultOverlaySprite;
+
+        const int size = 16;
+        var tex = new Texture2D(size, size, TextureFormat.ARGB32, false);
+        tex.filterMode = FilterMode.Point;
+        tex.wrapMode = TextureWrapMode.Clamp;
+        var pixels = new Color[size * size];
         for (int i = 0; i < pixels.Length; i++) pixels[i] = Color.white;
         tex.SetPixels(pixels);
         tex.Apply();
-        return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 16f);
+
+        s_DefaultOverlaySprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), size);
+        return s_DefaultOverlaySprite;
     }
 
     private Bounds GetEntityBounds()
     {
         var renderers = GetComponentsInChildren<SpriteRenderer>();
-        if (renderers.Length == 0)
-            return new Bounds(transform.position, Vector3.one);
+        if (renderers.Length == 0) return new Bounds(transform.position, Vector3.one);
         var bounds = renderers[0].bounds;
-        foreach (var r in renderers)
-            bounds.Encapsulate(r.bounds);
+        for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
         return bounds;
     }
 
@@ -86,9 +90,7 @@ public class EntityStateDebugOverlay : MonoBehaviour
         float timeSinceLastChange = Time.time - lastStateChangeTime;
         lastStateChangeTime = Time.time;
 
-        // If minimal display time hasn't passed, delay color change
-        if (colorCoroutine != null)
-            StopCoroutine(colorCoroutine);
+        if (colorCoroutine != null) StopCoroutine(colorCoroutine);
 
         if (timeSinceLastChange < minimalStateDisplayTime && lastState != state)
         {
@@ -113,20 +115,22 @@ public class EntityStateDebugOverlay : MonoBehaviour
     private void SetOverlayColor(EntityState state)
     {
         overlayGO.SetActive(true);
-        overlayRenderer.color = GetColorForState(state);
+        var col = GetColorForState(state);
+        col.a = overlayAlpha;
+        overlayRenderer.color = col;
     }
 
     private Color GetColorForState(EntityState state)
     {
         switch (state)
         {
-            case EntityState.Alive: return AliveColor;
-            case EntityState.Hit: return HitColor;
-            case EntityState.Dead: return DeadColor;
-            case EntityState.Falling: return FallingColor;
-            case EntityState.Invincible: return InvincibleColor;
+            case EntityState.Alive:       return AliveColor;
+            case EntityState.Hit:         return HitColor;
+            case EntityState.Dead:        return DeadColor;
+            case EntityState.Falling:     return FallingColor;
+            case EntityState.Invincible:  return InvincibleColor;
             case EntityState.DeadFalling: return DeadFallingColor;
-            default: return Color.clear;
+            default:                      return Color.clear;
         }
     }
 }
