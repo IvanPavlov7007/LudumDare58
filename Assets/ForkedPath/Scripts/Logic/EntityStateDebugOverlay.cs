@@ -42,7 +42,11 @@ public class EntityStateDebugOverlay : MonoBehaviour
     {
         entity.StateChanged -= OnEntityStateChanged;
         if (colorCoroutine != null) StopCoroutine(colorCoroutine);
-        overlayGO.SetActive(false);
+        if (overlayGO != null)
+        {
+            Destroy(overlayGO);
+            overlayGO = null;
+        }
     }
 
     private void CreateOverlay()
